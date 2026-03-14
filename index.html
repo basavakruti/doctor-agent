@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Doctor Voice Agent</title>
+
+<style>
+
+body{
+font-family: Arial;
+background:#f4f6f9;
+text-align:center;
+margin-top:80px;
+}
+
+.container{
+background:white;
+padding:30px;
+width:420px;
+margin:auto;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+h2{
+color:#333;
+}
+
+button{
+padding:12px 25px;
+background:#007bff;
+color:white;
+border:none;
+border-radius:5px;
+cursor:pointer;
+font-size:16px;
+}
+
+button:hover{
+background:#0056b3;
+}
+
+input{
+margin-top:10px;
+}
+
+#status{
+margin-top:20px;
+font-size:16px;
+color:#555;
+}
+
+#result{
+margin-top:20px;
+font-size:18px;
+color:#111;
+background:#f1f1f1;
+padding:10px;
+border-radius:5px;
+min-height:40px;
+}
+
+.loader{
+border:6px solid #f3f3f3;
+border-top:6px solid #007bff;
+border-radius:50%;
+width:30px;
+height:30px;
+animation:spin 1s linear infinite;
+margin:auto;
+margin-top:10px;
+display:none;
+}
+
+@keyframes spin{
+0%{transform:rotate(0deg);}
+100%{transform:rotate(360deg);}
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Doctor Voice Recognition</h2>
+
+<p>Upload doctor audio or video</p>
+
+<input type="file" id="audioFile" accept=".wav">
+
+<br><br>
+
+<button onclick="sendAudio()">Upload & Convert</button>
+
+<div class="loader" id="loader"></div>
+
+<p id="status"></p>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+
+async function sendAudio(){
+
+let fileInput = document.getElementById("audioFile")
+
+if(fileInput.files.length === 0){
+alert("Please select an audio or video file")
+return
+}
+
+let file = fileInput.files[0]
+
+let formData = new FormData()
+formData.append("audio", file)
+
+document.getElementById("loader").style.display = "block"
+document.getElementById("status").innerHTML = "Processing speech..."
+document.getElementById("result").innerHTML = ""
+
+try{
+
+let response = await fetch("http://localhost:5000/speech",{
+method:"POST",
+body:formData
+})
+
+if(!response.ok){
+throw new Error("Server Error")
+}
+
+let data = await response.json()
+
+document.getElementById("loader").style.display = "none"
+document.getElementById("status").innerHTML = "Transcription Result"
+
+document.getElementById("result").innerHTML = data.text
+
+}catch(error){
+
+document.getElementById("loader").style.display = "none"
+document.getElementById("status").innerHTML = "Error processing file"
+
+document.getElementById("result").innerHTML = error
+
+}
+
+}
+
+</script>
+
+</body>
+
+</html>
